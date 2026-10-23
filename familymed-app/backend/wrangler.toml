@@ -1,0 +1,7 @@
+name = "familymed-api"
+main = "worker.js"
+compatibility_date = "2025-01-01"
+
+[[kv_namespaces]]
+binding = "DB"
+id = "4bd5bc1400cb4f7a9aa6890dce63d485"
