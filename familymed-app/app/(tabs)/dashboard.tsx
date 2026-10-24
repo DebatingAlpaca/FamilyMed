@@ -17,6 +17,8 @@ type Data = {
   medicamentosRecentes: { id: string; nome: string; dosagem: string; estoque: number }[];
 };
 
+type Dose = { id: string; horario: string; medicamento: string; dosagem: string; status: string };
+
 function calcImc(peso?: number | null, altura?: number | null) {
   if (!peso || !altura) return null;
   const v = peso / Math.pow(altura / 100, 2);
@@ -24,7 +26,7 @@ function calcImc(peso?: number | null, altura?: number | null) {
   return { valor: v.toFixed(1).replace('.', ','), cls };
 }
 
-function Stat({ icon, color, label, value, sub, full }: { icon: any; color: string; label: string; value: string; sub?: string; full?: boolean }) {
+function Stat({ icon, color, label, value, sub, extra, full }: { icon: any; color: string; label: string; value: string; sub?: string; extra?: string; full?: boolean }) {
   const s = useStyles(makeStyles);
   return (
     <View style={[s.stat, full && { width: '100%' }]}>
@@ -33,7 +35,8 @@ function Stat({ icon, color, label, value, sub, full }: { icon: any; color: stri
       </View>
       <Text style={s.statLabel}>{label}</Text>
       <Text style={s.statValue}>{value}</Text>
-      {!!sub && <Text style={s.statSub}>{sub}</Text>}
+      {!!sub && <Text style={s.statSub} numberOfLines={2}>{sub}</Text>}
+      {!!extra && <Text style={s.statExtra}>{extra}</Text>}
     </View>
   );
 }
@@ -44,6 +47,7 @@ export default function Dashboard() {
   useTheme();
   const router = useRouter();
   const { data, erro, reload } = useApiData<Data>('/patient');
+  const agenda = useApiData<Dose[]>('/schedule');
   const [refreshing, setRefreshing] = useState(false);
 
   if (!data) {
@@ -68,6 +72,18 @@ export default function Dashboard() {
   const p = data.paciente;
   const imc = calcImc(p.peso, p.altura);
 
+  const lista = agenda.data ?? [];
+  const prox = lista.find((d) => d.status === 'proximo') ?? lista.find((d) => d.status === 'pendente');
+  const perdida = lista.find((d) => d.status === 'perdido');
+  const restantes = lista.filter((d) => d.status === 'proximo' || d.status === 'pendente').length;
+  const proxSub = prox
+    ? `${prox.medicamento} • ${prox.dosagem}`
+    : perdida
+    ? `Perdida: ${perdida.medicamento} (${perdida.horario})`
+    : lista.length > 0
+    ? 'Tudo em dia hoje'
+    : 'Sem doses hoje';
+
   return (
     <ScrollView
       style={s.screen}
@@ -77,7 +93,7 @@ export default function Dashboard() {
           refreshing={refreshing}
           onRefresh={async () => {
             setRefreshing(true);
-            await reload();
+            await Promise.all([reload(), agenda.reload()]);
             setRefreshing(false);
           }}
         />
@@ -105,9 +121,15 @@ export default function Dashboard() {
         <Stat icon="barbell" color="#EF6C00" label="Peso" value={p.peso ? `${String(p.peso).replace('.', ',')} kg` : '—'} />
         <Stat icon="resize" color="#0288D1" label="Altura" value={p.altura ? `${p.altura} cm` : '—'} />
         <Stat
-          full icon="speedometer" color="#2E7D32" label="IMC"
+          icon="speedometer" color="#2E7D32" label="IMC"
           value={imc ? imc.valor : '—'}
-          sub={imc ? imc.cls : 'Informe peso e altura em Editar Perfil'}
+          sub={imc ? imc.cls : 'Informe peso e altura'}
+        />
+        <Stat
+          icon="alarm" color="#8E24AA" label="Próxima dose"
+          value={prox ? prox.horario : '—'}
+          sub={proxSub}
+          extra={prox ? `${restantes} dose(s) restante(s) hoje` : undefined}
         />
       </View>
 
@@ -153,6 +175,7 @@ const makeStyles = (colors: Colors) => StyleSheet.create({
   statIcon: { width: 28, height: 28, borderRadius: 8, alignItems: 'center', justifyContent: 'center' },
   statLabel: { fontSize: 11, color: colors.muted, marginTop: 8 },
   statValue: { fontSize: 20, fontWeight: '700', color: colors.text, marginTop: 2 },
+  statExtra: { fontSize: 11, color: colors.primary, fontWeight: '700', marginTop: 4 },
   statSub: { fontSize: 12, color: colors.muted, marginTop: 2 },
   med: {
     flexDirection: 'row', alignItems: 'center', backgroundColor: colors.card, borderRadius: radius,
