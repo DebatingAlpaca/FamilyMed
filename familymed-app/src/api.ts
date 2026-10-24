@@ -3,7 +3,16 @@ export const API_URL = 'https://familymed-api.jpsilva030107.workers.dev';
 let userId: string | null = null;
 let patientId: string | null = null;
 export const setApiUser = (id: string | null) => { userId = id; };
-export const setApiPatient = (id: string | null) => { patientId = id; };
+const listeners = new Set<() => void>();
+export const onPatientChange = (fn: () => void) => {
+  listeners.add(fn);
+  return () => { listeners.delete(fn); };
+};
+export const setApiPatient = (id: string | null) => {
+  const changed = id !== patientId;
+  patientId = id;
+  if (changed) listeners.forEach((f) => f());
+};
 
 export async function api<T = any>(
   path: string,
@@ -15,6 +24,7 @@ export async function api<T = any>(
       method: opts.method ?? (opts.body ? 'POST' : 'GET'),
       headers: {
         'Content-Type': 'application/json',
+        'Cache-Control': 'no-cache',
         ...(userId ? { 'x-user-id': userId } : {}),
         ...(patientId ? { 'x-patient-id': patientId } : {}),
       },

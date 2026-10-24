@@ -1,26 +1,24 @@
 import { Ionicons } from '@expo/vector-icons';
-import { Tabs, useRouter } from 'expo-router';
-import { Pressable } from 'react-native';
-import PatientSwitcher from '../../src/components/PatientSwitcher';
-import { colors } from '../../src/theme';
+import { Tabs } from 'expo-router';
+import AppHeader from '../../src/components/AppHeader';
+import { useTheme } from '../../src/ThemeContext';
+import { useColors } from '../../src/ThemeContext';
 
 const icon = (name: any) => ({ color, size }: { color: string; size: number }) => (
   <Ionicons name={name} size={size} color={color} />
 );
 
 export default function TabsLayout() {
-  const router = useRouter();
+  const colors = useColors();
+  useTheme();
   return (
     <Tabs
       screenOptions={{
-        headerTitle: () => <PatientSwitcher />,
-        headerTitleAlign: 'left',
+        header: () => <AppHeader />,
         tabBarActiveTintColor: colors.primary,
-        headerRight: () => (
-          <Pressable onPress={() => router.push('/alertas')} style={{ marginRight: 16 }}>
-            <Ionicons name="notifications-outline" size={22} color={colors.primary} />
-          </Pressable>
-        ),
+        tabBarInactiveTintColor: colors.muted,
+        tabBarStyle: { backgroundColor: colors.card, borderTopColor: colors.border },
+        sceneStyle: { backgroundColor: colors.bg },
       }}
     >
       <Tabs.Screen name="dashboard" options={{ title: 'Dashboard', tabBarIcon: icon('grid-outline') }} />

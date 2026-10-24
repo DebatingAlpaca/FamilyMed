@@ -1,11 +1,14 @@
+import { useTheme } from '../src/ThemeContext';
 import { useRouter } from 'expo-router';
 import { ScrollView } from 'react-native';
 import { api } from '../src/api';
 import PacienteForm from '../src/components/PacienteForm';
 import { useSession } from '../src/session';
-import { colors } from '../src/theme';
+import { useColors } from '../src/ThemeContext';
 
 export default function NovoPaciente() {
+  const colors = useColors();
+  useTheme();
   const router = useRouter();
   const { setPatient, bumpPatients } = useSession();
   return (

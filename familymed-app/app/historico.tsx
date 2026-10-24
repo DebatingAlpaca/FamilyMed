@@ -1,3 +1,4 @@
+import { useTheme } from '../src/ThemeContext';
 import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect } from 'expo-router';
 import { useCallback, useState } from 'react';
@@ -5,7 +6,9 @@ import { FlatList, Pressable, ScrollView, Share, StyleSheet, Text, View } from '
 import { api } from '../src/api';
 import { Field } from '../src/components/ui';
 import { useSession } from '../src/session';
-import { colors, radius } from '../src/theme';
+import { radius } from '../src/theme';
+import type { Colors } from '../src/theme';
+import { useColors, useStyles } from '../src/ThemeContext';
 
 type Reg = { id: string; medicamento: string; dosagem: string; quantidade: number; data: string; hora: string; responsavel: string };
 type Med = { id: string; nome: string };
@@ -24,6 +27,9 @@ const iso = (br: string) => {
 const br = (i: string) => i.split('-').reverse().join('/');
 
 export default function Historico() {
+  const colors = useColors();
+  const s = useStyles(makeStyles);
+  useTheme();
   const { patientId } = useSession();
   const [meds, setMeds] = useState<Med[]>([]);
   const [medId, setMedId] = useState<string | null>(null);
@@ -112,10 +118,10 @@ export default function Historico() {
   );
 }
 
-const s = StyleSheet.create({
+const makeStyles = (colors: Colors) => StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.bg },
   label: { fontSize: 12, fontWeight: '600', color: colors.text, marginBottom: 6 },
-  chip: { paddingHorizontal: 14, paddingVertical: 8, borderRadius: 18, borderWidth: 1, borderColor: colors.border, backgroundColor: '#fff' },
+  chip: { paddingHorizontal: 14, paddingVertical: 8, borderRadius: 18, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.card },
   chipOn: { backgroundColor: colors.primary, borderColor: colors.primary },
   chipText: { fontSize: 13, color: colors.text, fontWeight: '600' },
   export: { flexDirection: 'row', gap: 6, alignItems: 'center', alignSelf: 'flex-end', marginBottom: 12 },

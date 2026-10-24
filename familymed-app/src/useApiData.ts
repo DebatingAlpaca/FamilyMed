@@ -1,6 +1,6 @@
 import { useFocusEffect } from 'expo-router';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { api } from './api';
+import { api, onPatientChange } from './api';
 import { useSession } from './session';
 
 // Carrega dados da API e recarrega quando: a tela ganha foco OU o familiar selecionado muda.
@@ -19,6 +19,19 @@ export function useApiData<T>(path: string) {
       if (id === req.current) setErro(e.message);
     }
   }, [path, patientId]);
+
+  const reloadRef = useRef(reload);
+  reloadRef.current = reload;
+
+  // troca de familiar avisada direto pelo api.ts: limpa e recarrega na hora
+  useEffect(
+    () =>
+      onPatientChange(() => {
+        setData(null);
+        reloadRef.current();
+      }),
+    []
+  );
 
   // troca de familiar: limpa os dados antigos e carrega os novos
   useEffect(() => {

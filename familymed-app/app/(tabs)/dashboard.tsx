@@ -1,9 +1,12 @@
+import { useTheme } from '../../src/ThemeContext';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
 import { ActivityIndicator, Pressable, RefreshControl, ScrollView, StyleSheet, Text, View } from 'react-native';
 import Avatar from '../../src/components/Avatar';
-import { colors, radius } from '../../src/theme';
+import { radius } from '../../src/theme';
+import type { Colors } from '../../src/theme';
+import { useColors, useStyles } from '../../src/ThemeContext';
 import { useApiData } from '../../src/useApiData';
 
 type Data = {
@@ -22,6 +25,7 @@ function calcImc(peso?: number | null, altura?: number | null) {
 }
 
 function Stat({ icon, color, label, value, sub, full }: { icon: any; color: string; label: string; value: string; sub?: string; full?: boolean }) {
+  const s = useStyles(makeStyles);
   return (
     <View style={[s.stat, full && { width: '100%' }]}>
       <View style={[s.statIcon, { backgroundColor: color + '22' }]}>
@@ -35,6 +39,9 @@ function Stat({ icon, color, label, value, sub, full }: { icon: any; color: stri
 }
 
 export default function Dashboard() {
+  const colors = useColors();
+  const s = useStyles(makeStyles);
+  useTheme();
   const router = useRouter();
   const { data, erro, reload } = useApiData<Data>('/patient');
   const [refreshing, setRefreshing] = useState(false);
@@ -122,7 +129,7 @@ export default function Dashboard() {
   );
 }
 
-const s = StyleSheet.create({
+const makeStyles = (colors: Colors) => StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.bg },
   center: { flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: colors.bg },
   card: {

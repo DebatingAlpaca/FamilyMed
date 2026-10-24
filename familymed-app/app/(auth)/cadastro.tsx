@@ -1,3 +1,4 @@
+import { useTheme } from '../../src/ThemeContext';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
@@ -6,9 +7,14 @@ import {
 } from 'react-native';
 import { api } from '../../src/api';
 import { Field, PrimaryButton } from '../../src/components/ui';
-import { colors, radius } from '../../src/theme';
+import { radius } from '../../src/theme';
+import type { Colors } from '../../src/theme';
+import { useColors, useStyles } from '../../src/ThemeContext';
 
 export default function Cadastro() {
+  const colors = useColors();
+  const s = useStyles(makeStyles);
+  useTheme();
   const router = useRouter();
   const [nome, setNome] = useState('');
   const [email, setEmail] = useState('');
@@ -92,7 +98,7 @@ export default function Cadastro() {
   );
 }
 
-const s = StyleSheet.create({
+const makeStyles = (colors: Colors) => StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.bg },
   content: { padding: 20, paddingTop: 70, paddingBottom: 40 },
   brand: { fontSize: 30, fontWeight: '800', color: colors.primary, textAlign: 'center' },
@@ -104,7 +110,7 @@ const s = StyleSheet.create({
   erro: { color: colors.danger, fontSize: 13, marginTop: 4 },
   footer: { textAlign: 'center', marginTop: 16, fontSize: 13, color: colors.muted },
   modalBg: { flex: 1, backgroundColor: 'rgba(0,0,0,0.45)', justifyContent: 'flex-end' },
-  modal: { backgroundColor: '#fff', padding: 20, borderTopLeftRadius: 20, borderTopRightRadius: 20, gap: 12 },
+  modal: { backgroundColor: colors.card, padding: 20, borderTopLeftRadius: 20, borderTopRightRadius: 20, gap: 12 },
   modalTitle: { fontSize: 17, fontWeight: '700', color: colors.primary },
   modalText: { fontSize: 14, color: colors.text, lineHeight: 21 },
 });

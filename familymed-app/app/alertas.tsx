@@ -1,24 +1,30 @@
+import { useTheme } from '../src/ThemeContext';
 import { Ionicons } from '@expo/vector-icons';
 import { useEffect, useState } from 'react';
 import { ActivityIndicator, FlatList, Linking, Modal, Pressable, StyleSheet, Text, View } from 'react-native';
 import { api } from '../src/api';
 import { Field, PrimaryButton } from '../src/components/ui';
 import { useSession } from '../src/session';
-import { colors, radius } from '../src/theme';
+import { radius } from '../src/theme';
+import type { Colors } from '../src/theme';
+import { useColors, useStyles } from '../src/ThemeContext';
 import { useApiData } from '../src/useApiData';
 
 type Alerta = { tipo: 'atraso' | 'estoque' | 'validade'; titulo: string; mensagem: string; medId?: string; doseId?: string };
 type Fam = { id: string; telefone: string | null };
 
-const TIPO = {
+const TIPO = (colors: Colors) => ({
   atraso: { icon: 'alert-circle', cor: colors.danger },
   estoque: { icon: 'cube', cor: colors.warn },
   validade: { icon: 'calendar', cor: '#EF6C00' },
-} as const;
+}) as const;
 
 const chave = (a: Alerta) => `${a.tipo}-${a.medId ?? a.doseId}`;
 
 export default function Alertas() {
+  const colors = useColors();
+  const s = useStyles(makeStyles);
+  useTheme();
   const { patientId } = useSession();
   const { data: alertas, erro, reload: carregar } = useApiData<Alerta[]>('/alerts');
   const [ignorados, setIgnorados] = useState<string[]>([]);
@@ -73,7 +79,7 @@ export default function Alertas() {
         }
         ListEmptyComponent={<Text style={s.vazio}>Você não tem notificações.</Text>}
         renderItem={({ item: a }) => {
-          const t = TIPO[a.tipo];
+          const t = TIPO(colors)[a.tipo];
           return (
             <View style={[s.card, { borderLeftColor: t.cor }]}>
               <View style={s.head}>
@@ -119,7 +125,7 @@ export default function Alertas() {
   );
 }
 
-const s = StyleSheet.create({
+const makeStyles = (colors: Colors) => StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.bg },
   center: { flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: colors.bg },
   titulo: { fontSize: 22, fontWeight: '800', color: colors.text },
@@ -133,11 +139,11 @@ const s = StyleSheet.create({
   cardTitulo: { fontSize: 14, fontWeight: '800' },
   msg: { fontSize: 13, color: colors.text, marginTop: 8 },
   acoes: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginTop: 12 },
-  btnCinza: { backgroundColor: '#EEF2F6', paddingHorizontal: 12, paddingVertical: 8, borderRadius: 8 },
+  btnCinza: { backgroundColor: colors.chip, paddingHorizontal: 12, paddingVertical: 8, borderRadius: 8 },
   btnCinzaText: { fontSize: 11, fontWeight: '700', color: colors.muted },
   btnAzul: { backgroundColor: colors.primary, paddingHorizontal: 12, paddingVertical: 8, borderRadius: 8 },
   btnAzulText: { fontSize: 11, fontWeight: '700', color: '#fff' },
   modalBg: { flex: 1, backgroundColor: 'rgba(0,0,0,0.45)', justifyContent: 'flex-end' },
-  sheet: { backgroundColor: '#fff', padding: 20, borderTopLeftRadius: 20, borderTopRightRadius: 20, gap: 8 },
+  sheet: { backgroundColor: colors.card, padding: 20, borderTopLeftRadius: 20, borderTopRightRadius: 20, gap: 8 },
   sheetTitle: { fontSize: 18, fontWeight: '800', color: colors.primary },
 });

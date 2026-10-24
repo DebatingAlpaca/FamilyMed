@@ -1,12 +1,19 @@
+import { Ionicons } from '@expo/vector-icons';
+import { useTheme } from '../../src/ThemeContext';
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
 import { Alert, KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { api } from '../../src/api';
 import { Field, PrimaryButton } from '../../src/components/ui';
 import { useSession } from '../../src/session';
-import { colors, radius } from '../../src/theme';
+import { radius } from '../../src/theme';
+import type { Colors } from '../../src/theme';
+import { useColors, useStyles } from '../../src/ThemeContext';
 
 export default function Login() {
+  const colors = useColors();
+  const s = useStyles(makeStyles);
+  const { mode: themeMode, toggle: toggleTheme } = useTheme();
   const router = useRouter();
   const { signIn } = useSession();
   const [email, setEmail] = useState('');
@@ -61,11 +68,14 @@ export default function Login() {
           </Text>
         </View>
       </ScrollView>
+      <Pressable style={{ position: 'absolute', top: 50, right: 20 }} onPress={toggleTheme} hitSlop={10}>
+        <Ionicons name={themeMode === 'dark' ? 'sunny-outline' : 'moon-outline'} size={24} color={colors.primary} />
+      </Pressable>
     </KeyboardAvoidingView>
   );
 }
 
-const s = StyleSheet.create({
+const makeStyles = (colors: Colors) => StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.bg },
   content: { padding: 20, paddingTop: 100, paddingBottom: 40 },
   brand: { fontSize: 30, fontWeight: '800', color: colors.primary, textAlign: 'center' },

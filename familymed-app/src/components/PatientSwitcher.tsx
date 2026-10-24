@@ -5,11 +5,15 @@ import { Modal, Pressable, StyleSheet, Text, View } from 'react-native';
 import { api } from '../api';
 import { useSession } from '../session';
 import Avatar from './Avatar';
-import { colors, radius } from '../theme';
+import { radius } from '../theme';
+import type { Colors } from '../theme';
+import { useColors, useStyles } from '../ThemeContext';
 
 type P = { id: string; nome: string; idade: number; sexo: string };
 
 export default function PatientSwitcher() {
+  const colors = useColors();
+  const s = useStyles(makeStyles);
   const router = useRouter();
   const { session, patientId, setPatient, patientsVersion } = useSession();
   const [list, setList] = useState<P[]>([]);
@@ -67,14 +71,14 @@ export default function PatientSwitcher() {
   );
 }
 
-const s = StyleSheet.create({
-  btn: { flexDirection: 'row', alignItems: 'center', gap: 6, maxWidth: 220 },
-  nome: { fontSize: 18, fontWeight: '800', color: colors.primary, flexShrink: 1 },
+const makeStyles = (colors: Colors) => StyleSheet.create({
+  btn: { flexDirection: 'row', alignItems: 'center', gap: 6, maxWidth: 260, backgroundColor: colors.tint, paddingHorizontal: 14, paddingVertical: 6, borderRadius: 16 },
+  nome: { fontSize: 14, fontWeight: '700', color: colors.primary, flexShrink: 1 },
   bg: { flex: 1, backgroundColor: 'rgba(0,0,0,0.45)', justifyContent: 'flex-end' },
-  sheet: { backgroundColor: '#fff', padding: 20, borderTopLeftRadius: 20, borderTopRightRadius: 20, gap: 8 },
+  sheet: { backgroundColor: colors.card, padding: 20, borderTopLeftRadius: 20, borderTopRightRadius: 20, gap: 8 },
   titulo: { fontSize: 17, fontWeight: '800', color: colors.primary, marginBottom: 6 },
   item: { flexDirection: 'row', alignItems: 'center', gap: 10, padding: 10, borderRadius: radius, borderWidth: 1, borderColor: colors.border },
-  itemOn: { borderColor: colors.primary, backgroundColor: '#F0F7FF' },
+  itemOn: { borderColor: colors.primary, backgroundColor: colors.tintSoft },
   itemNome: { fontSize: 15, fontWeight: '700', color: colors.text },
   itemSub: { fontSize: 12, color: colors.muted },
   add: { flexDirection: 'row', alignItems: 'center', gap: 8, justifyContent: 'center', padding: 14 },

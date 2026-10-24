@@ -2,7 +2,8 @@ import { useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { Field, PrimaryButton } from './ui';
 import Chips from './Chips';
-import { colors } from '../theme';
+import type { Colors } from '../theme';
+import { useStyles } from '../ThemeContext';
 
 const SANGUE = ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'];
 
@@ -11,6 +12,7 @@ type Props = { initial?: any; label: string; onSubmit: (d: any) => Promise<void>
 const str = (v: any) => (v === null || v === undefined ? '' : String(v));
 
 export default function PacienteForm({ initial, label, onSubmit }: Props) {
+  const s = useStyles(makeStyles);
   const [nome, setNome] = useState(str(initial?.nome));
   const [idade, setIdade] = useState(str(initial?.idade));
   const [sexo, setSexo] = useState<string>(initial?.sexo ?? 'Fem');
@@ -63,7 +65,7 @@ export default function PacienteForm({ initial, label, onSubmit }: Props) {
   );
 }
 
-const s = StyleSheet.create({
+const makeStyles = (colors: Colors) => StyleSheet.create({
   card: { backgroundColor: colors.card, borderRadius: 16, padding: 18, borderWidth: 1, borderColor: colors.border },
   label: { fontSize: 12, fontWeight: '600', color: colors.text, marginBottom: 6 },
   secao: { fontSize: 14, fontWeight: '800', color: colors.primary, marginTop: 6, marginBottom: 10 },

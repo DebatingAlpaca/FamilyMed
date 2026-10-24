@@ -1,10 +1,13 @@
+import { useTheme } from '../src/ThemeContext';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { api } from '../src/api';
 import { Field, PrimaryButton } from '../src/components/ui';
-import { colors, radius } from '../src/theme';
+import { radius } from '../src/theme';
+import type { Colors } from '../src/theme';
+import { useColors, useStyles } from '../src/ThemeContext';
 
 const maskHora = (t: string) => {
   const d = t.replace(/\D/g, '').slice(0, 4);
@@ -19,6 +22,9 @@ const maskData = (t: string) => {
 const horaOk = (h: string) => /^([01]\d|2[0-3]):[0-5]\d$/.test(h);
 
 export default function NovoMedicamento() {
+  const colors = useColors();
+  const s = useStyles(makeStyles);
+  useTheme();
   const router = useRouter();
   const [nome, setNome] = useState('');
   const [dosagem, setDosagem] = useState('');
@@ -102,7 +108,7 @@ export default function NovoMedicamento() {
   );
 }
 
-const s = StyleSheet.create({
+const makeStyles = (colors: Colors) => StyleSheet.create({
   card: { backgroundColor: colors.card, borderRadius: 16, padding: 18, borderWidth: 1, borderColor: colors.border },
   add: {
     height: 48, paddingHorizontal: 14, borderRadius: radius, borderWidth: 1, borderColor: colors.primary,
@@ -110,7 +116,7 @@ const s = StyleSheet.create({
   },
   addText: { color: colors.primary, fontWeight: '700', fontSize: 13 },
   chips: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginBottom: 14, marginTop: -4 },
-  chip: { flexDirection: 'row', alignItems: 'center', gap: 4, backgroundColor: '#E3F2FD', paddingHorizontal: 10, paddingVertical: 6, borderRadius: 16 },
+  chip: { flexDirection: 'row', alignItems: 'center', gap: 4, backgroundColor: colors.tint, paddingHorizontal: 10, paddingVertical: 6, borderRadius: 16 },
   chipText: { color: colors.primary, fontWeight: '600', fontSize: 13 },
   erro: { color: colors.danger, fontSize: 13, marginBottom: 4 },
 });

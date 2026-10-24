@@ -1,11 +1,14 @@
+import { useTheme } from '../../src/ThemeContext';
 import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect, useRouter } from 'expo-router';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, Alert, Linking, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
-import { api } from '../../src/api';
+import { api, onPatientChange } from '../../src/api';
 import Avatar from '../../src/components/Avatar';
 import { useSession } from '../../src/session';
-import { colors, radius } from '../../src/theme';
+import { radius } from '../../src/theme';
+import type { Colors } from '../../src/theme';
+import { useColors, useStyles } from '../../src/ThemeContext';
 
 type Fam = {
   id: string; nome: string; idade: number; sexo: string; telefone: string | null;
@@ -14,10 +17,14 @@ type Fam = {
 type Prof = { id: string; nome: string; vinculo: string; telefone: string };
 
 function Badge({ texto, bg, fg }: { texto: string; bg: string; fg: string }) {
+  const s = useStyles(makeStyles);
   return <Text style={[s.badge, { backgroundColor: bg, color: fg }]}>{texto}</Text>;
 }
 
 export default function Familia() {
+  const colors = useColors();
+  const s = useStyles(makeStyles);
+  useTheme();
   const router = useRouter();
   const { session, signOut, patientId, setPatient, patientsVersion } = useSession();
   const [fam, setFam] = useState<Fam[] | null>(null);
@@ -30,6 +37,9 @@ export default function Familia() {
   }, [patientId, patientsVersion]);
   useFocusEffect(carregar);
   useEffect(() => { carregar(); }, [carregar]);
+  const carregarRef = useRef(carregar);
+  carregarRef.current = carregar;
+  useEffect(() => onPatientChange(() => carregarRef.current()), []);
 
   const atual = fam?.find((f) => f.id === patientId);
 
@@ -100,9 +110,9 @@ export default function Familia() {
                 <Text style={s.hoje}>
                   {f.total === 0 ? 'Sem doses hoje' : `${f.administradas}/${f.total} doses hoje`}
                 </Text>
-                {emDia && <Badge texto="Em dia" bg="#E3F4E5" fg={colors.ok} />}
-                {f.perdidas > 0 && <Badge texto={`${f.perdidas} perdida(s)`} bg="#FDE8E8" fg={colors.danger} />}
-                {f.estoqueBaixo > 0 && <Badge texto="Estoque baixo" bg="#FFF3CD" fg="#8A6D00" />}
+                {emDia && <Badge texto="Em dia" bg={colors.okBg} fg={colors.ok} />}
+                {f.perdidas > 0 && <Badge texto={`${f.perdidas} perdida(s)`} bg={colors.dangerBg} fg={colors.danger} />}
+                {f.estoqueBaixo > 0 && <Badge texto="Estoque baixo" bg={colors.warnBg} fg={colors.warnFg} />}
               </View>
             </Pressable>
           );
@@ -150,7 +160,7 @@ export default function Familia() {
   );
 }
 
-const s = StyleSheet.create({
+const makeStyles = (colors: Colors) => StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.bg },
   conta: {
     flexDirection: 'row', alignItems: 'center', gap: 12, backgroundColor: colors.card, borderRadius: radius,
@@ -165,15 +175,15 @@ const s = StyleSheet.create({
     backgroundColor: colors.card, borderRadius: radius, padding: 12, marginBottom: 8,
     borderWidth: 1, borderColor: colors.border, borderLeftWidth: 4, borderLeftColor: colors.border,
   },
-  cardOn: { borderLeftColor: colors.primary, backgroundColor: '#F7FAFE' },
+  cardOn: { borderLeftColor: colors.primary, backgroundColor: colors.tintSoft },
   linha: { flexDirection: 'row', alignItems: 'center', gap: 10 },
   badges: { flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap', gap: 8, marginTop: 10 },
   hoje: { fontSize: 12, fontWeight: '600', color: colors.text },
   badge: { fontSize: 11, fontWeight: '700', paddingHorizontal: 8, paddingVertical: 3, borderRadius: 8, overflow: 'hidden' },
-  avatar: { width: 38, height: 38, borderRadius: 19, backgroundColor: '#E3F2FD', alignItems: 'center', justifyContent: 'center' },
+  avatar: { width: 38, height: 38, borderRadius: 19, backgroundColor: colors.tint, alignItems: 'center', justifyContent: 'center' },
   nome: { fontSize: 14, fontWeight: '700', color: colors.text },
   sub: { fontSize: 12, color: colors.muted },
-  icone: { width: 32, height: 32, borderRadius: 16, backgroundColor: '#EEF2F6', alignItems: 'center', justifyContent: 'center' },
+  icone: { width: 32, height: 32, borderRadius: 16, backgroundColor: colors.chip, alignItems: 'center', justifyContent: 'center' },
   sair: {
     flexDirection: 'row', gap: 8, alignItems: 'center', justifyContent: 'center', height: 48, marginTop: 28,
     borderRadius: radius, borderWidth: 1, borderColor: colors.danger,

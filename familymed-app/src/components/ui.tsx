@@ -3,7 +3,9 @@ import React, { useState } from 'react';
 import {
   ActivityIndicator, KeyboardTypeOptions, Pressable, StyleSheet, Text, TextInput, View,
 } from 'react-native';
-import { colors, radius } from '../theme';
+import { radius } from '../theme';
+import type { Colors } from '../theme';
+import { useColors, useStyles } from '../ThemeContext';
 
 type FieldProps = {
   label: string;
@@ -16,6 +18,8 @@ type FieldProps = {
 };
 
 export function Field({ label, icon, value, onChangeText, placeholder, secure, keyboardType }: FieldProps) {
+  const colors = useColors();
+  const s = useStyles(makeStyles);
   const [hidden, setHidden] = useState(!!secure);
   return (
     <View style={s.fieldWrap}>
@@ -27,7 +31,7 @@ export function Field({ label, icon, value, onChangeText, placeholder, secure, k
           value={value}
           onChangeText={onChangeText}
           placeholder={placeholder}
-          placeholderTextColor="#9AA5B1"
+          placeholderTextColor={colors.placeholder}
           secureTextEntry={hidden}
           keyboardType={keyboardType}
           autoCapitalize={secure || keyboardType === 'email-address' ? 'none' : 'words'}
@@ -44,6 +48,7 @@ export function Field({ label, icon, value, onChangeText, placeholder, secure, k
 }
 
 export function PrimaryButton({ title, onPress, loading }: { title: string; onPress: () => void; loading?: boolean }) {
+  const s = useStyles(makeStyles);
   return (
     <Pressable style={[s.btn, loading && { opacity: 0.7 }]} onPress={onPress} disabled={loading}>
       {loading ? <ActivityIndicator color="#fff" /> : <Text style={s.btnText}>{title}</Text>}
@@ -51,11 +56,11 @@ export function PrimaryButton({ title, onPress, loading }: { title: string; onPr
   );
 }
 
-const s = StyleSheet.create({
+const makeStyles = (colors: Colors) => StyleSheet.create({
   fieldWrap: { marginBottom: 14 },
   label: { fontSize: 12, fontWeight: '600', color: colors.text, marginBottom: 6 },
   inputBox: {
-    flexDirection: 'row', alignItems: 'center', gap: 8, backgroundColor: '#fff',
+    flexDirection: 'row', alignItems: 'center', gap: 8, backgroundColor: colors.card,
     borderWidth: 1, borderColor: colors.border, borderRadius: radius, paddingHorizontal: 12, height: 48,
   },
   input: { flex: 1, fontSize: 15, color: colors.text },

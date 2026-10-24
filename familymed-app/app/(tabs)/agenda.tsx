@@ -1,3 +1,4 @@
+import { useTheme } from '../../src/ThemeContext';
 import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect, useRouter } from 'expo-router';
 import { useCallback, useState } from 'react';
@@ -6,19 +7,24 @@ import { api } from '../../src/api';
 import Fab from '../../src/components/Fab';
 import { PrimaryButton } from '../../src/components/ui';
 import { useSession } from '../../src/session';
-import { colors, radius } from '../../src/theme';
+import { radius } from '../../src/theme';
+import type { Colors } from '../../src/theme';
+import { useColors, useStyles } from '../../src/ThemeContext';
 import { useApiData } from '../../src/useApiData';
 
 type Dose = { id: string; horario: string; medicamento: string; dosagem: string; status: 'administrada' | 'perdido' | 'proximo' | 'pendente' };
 
-const STATUS = {
-  perdido: { label: 'Perdido', bg: '#FDE8E8', fg: colors.danger },
-  proximo: { label: 'Próximo', bg: '#CDEBFB', fg: colors.primary },
-  pendente: { label: 'Pendente', bg: '#EEF2F6', fg: colors.muted },
-  administrada: { label: 'Administrada', bg: '#E3F4E5', fg: colors.ok },
-};
+const STATUS = (colors: Colors) => ({
+  perdido: { label: 'Perdido', bg: colors.dangerBg, fg: colors.danger },
+  proximo: { label: 'Próximo', bg: colors.infoBg, fg: colors.primary },
+  pendente: { label: 'Pendente', bg: colors.chip, fg: colors.muted },
+  administrada: { label: 'Administrada', bg: colors.okBg, fg: colors.ok },
+});
 
 export default function Agenda() {
+  const colors = useColors();
+  const s = useStyles(makeStyles);
+  useTheme();
   const router = useRouter();
   const { patientId } = useSession();
   const { data: doses, erro, reload: carregar } = useApiData<Dose[]>('/schedule');
@@ -71,7 +77,7 @@ export default function Agenda() {
           </View>
         }
         renderItem={({ item: d }) => {
-          const st = STATUS[d.status];
+          const st = STATUS(colors)[d.status];
           const feito = d.status === 'administrada';
           return (
             <Pressable style={[s.card, { borderLeftColor: st.fg }, feito && { opacity: 0.6 }]} onPress={() => abrir(d)}>
@@ -120,7 +126,7 @@ export default function Agenda() {
   );
 }
 
-const s = StyleSheet.create({
+const makeStyles = (colors: Colors) => StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.bg },
   center: { flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: colors.bg },
   titulo: { fontSize: 20, fontWeight: '800', color: colors.text, marginBottom: 12 },
@@ -135,7 +141,7 @@ const s = StyleSheet.create({
   med: { fontSize: 15, fontWeight: '700', color: colors.text },
   dose: { fontSize: 12, color: colors.muted, marginTop: 2 },
   modalBg: { flex: 1, backgroundColor: 'rgba(0,0,0,0.45)', justifyContent: 'flex-end' },
-  sheet: { backgroundColor: '#fff', padding: 20, borderTopLeftRadius: 20, borderTopRightRadius: 20, gap: 8 },
+  sheet: { backgroundColor: colors.card, padding: 20, borderTopLeftRadius: 20, borderTopRightRadius: 20, gap: 8 },
   sheetTitle: { fontSize: 18, fontWeight: '800', color: colors.primary },
   sheetMed: { fontSize: 15, fontWeight: '600', color: colors.text },
   sheetSub: { fontSize: 12, color: colors.muted, marginBottom: 8 },

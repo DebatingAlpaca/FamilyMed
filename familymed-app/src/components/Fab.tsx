@@ -1,8 +1,10 @@
 import { Ionicons } from '@expo/vector-icons';
 import { Pressable, StyleSheet } from 'react-native';
-import { colors } from '../theme';
+import type { Colors } from '../theme';
+import { useStyles } from '../ThemeContext';
 
 export default function Fab({ onPress }: { onPress: () => void }) {
+  const s = useStyles(makeStyles);
   return (
     <Pressable style={s.fab} onPress={onPress}>
       <Ionicons name="add" size={28} color="#fff" />
@@ -10,7 +12,7 @@ export default function Fab({ onPress }: { onPress: () => void }) {
   );
 }
 
-const s = StyleSheet.create({
+const makeStyles = (colors: Colors) => StyleSheet.create({
   fab: {
     position: 'absolute', right: 18, bottom: 18, width: 56, height: 56, borderRadius: 28,
     backgroundColor: colors.primary, alignItems: 'center', justifyContent: 'center', elevation: 5,

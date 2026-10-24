@@ -1,3 +1,4 @@
+import { useTheme } from '../../src/ThemeContext';
 import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect, useRouter } from 'expo-router';
 import { useCallback, useState } from 'react';
@@ -5,7 +6,9 @@ import { ActivityIndicator, FlatList, StyleSheet, Text, View } from 'react-nativ
 import { api } from '../../src/api';
 import Fab from '../../src/components/Fab';
 import { useSession } from '../../src/session';
-import { colors, radius } from '../../src/theme';
+import { radius } from '../../src/theme';
+import type { Colors } from '../../src/theme';
+import { useColors, useStyles } from '../../src/ThemeContext';
 import { useApiData } from '../../src/useApiData';
 
 type Med = {
@@ -16,6 +19,9 @@ type Med = {
 const br = (iso: string) => iso.split('-').reverse().join('/');
 
 export default function Medicacoes() {
+  const colors = useColors();
+  const s = useStyles(makeStyles);
+  useTheme();
   const router = useRouter();
   const { patientId } = useSession();
   const { data: meds, erro } = useApiData<Med[]>('/medications');
@@ -60,7 +66,7 @@ export default function Medicacoes() {
   );
 }
 
-const s = StyleSheet.create({
+const makeStyles = (colors: Colors) => StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.bg },
   center: { flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: colors.bg },
   vazio: { textAlign: 'center', color: colors.muted, marginTop: 40 },
@@ -73,6 +79,6 @@ const s = StyleSheet.create({
   dose: { fontSize: 13, color: colors.primary, fontWeight: '600' },
   linha: { fontSize: 12, color: colors.muted, marginTop: 6 },
   rodape: { flexDirection: 'row', gap: 8, marginTop: 10, flexWrap: 'wrap' },
-  badge: { fontSize: 11, color: colors.text, backgroundColor: '#EEF2F6', paddingHorizontal: 8, paddingVertical: 3, borderRadius: 8, overflow: 'hidden' },
-  badgeWarn: { backgroundColor: '#FFF3CD', color: '#8A6D00' },
+  badge: { fontSize: 11, color: colors.text, backgroundColor: colors.chip, paddingHorizontal: 8, paddingVertical: 3, borderRadius: 8, overflow: 'hidden' },
+  badgeWarn: { backgroundColor: colors.warnBg, color: colors.warnFg },
 });

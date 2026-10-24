@@ -1,11 +1,16 @@
+import { useTheme } from '../src/ThemeContext';
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
 import { ScrollView, StyleSheet, View, Text } from 'react-native';
 import { api } from '../src/api';
 import { Field, PrimaryButton } from '../src/components/ui';
-import { colors } from '../src/theme';
+import type { Colors } from '../src/theme';
+import { useColors, useStyles } from '../src/ThemeContext';
 
 export default function NovoProfissional() {
+  const colors = useColors();
+  const s = useStyles(makeStyles);
+  useTheme();
   const router = useRouter();
   const [nome, setNome] = useState('');
   const [vinculo, setVinculo] = useState('');
@@ -40,7 +45,7 @@ export default function NovoProfissional() {
   );
 }
 
-const s = StyleSheet.create({
+const makeStyles = (colors: Colors) => StyleSheet.create({
   card: { backgroundColor: colors.card, borderRadius: 16, padding: 18, borderWidth: 1, borderColor: colors.border },
   erro: { color: colors.danger, fontSize: 13, marginBottom: 4 },
 });

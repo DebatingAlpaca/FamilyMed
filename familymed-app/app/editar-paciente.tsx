@@ -1,3 +1,4 @@
+import { useTheme } from '../src/ThemeContext';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
@@ -5,9 +6,14 @@ import { ActivityIndicator, Alert, Pressable, ScrollView, StyleSheet, Text } fro
 import { api } from '../src/api';
 import PacienteForm from '../src/components/PacienteForm';
 import { useSession } from '../src/session';
-import { colors, radius } from '../src/theme';
+import { radius } from '../src/theme';
+import type { Colors } from '../src/theme';
+import { useColors, useStyles } from '../src/ThemeContext';
 
 export default function EditarFamiliar() {
+  const colors = useColors();
+  const s = useStyles(makeStyles);
+  useTheme();
   const router = useRouter();
   const { bumpPatients } = useSession();
   const [familiar, setFamiliar] = useState<any>(null);
@@ -54,7 +60,7 @@ export default function EditarFamiliar() {
   );
 }
 
-const s = StyleSheet.create({
+const makeStyles = (colors: Colors) => StyleSheet.create({
   remover: {
     flexDirection: 'row', gap: 8, alignItems: 'center', justifyContent: 'center', height: 48, marginTop: 20,
     borderRadius: radius, borderWidth: 1, borderColor: colors.danger,
