@@ -1,7 +1,9 @@
 import { useTheme } from '../src/ThemeContext';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { usePremium } from '../src/PremiumContext';
+import { LOCKS } from '../src/premium';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { api } from '../src/api';
 import { Field, PrimaryButton } from '../src/components/ui';
@@ -26,6 +28,19 @@ export default function NovoMedicamento() {
   const s = useStyles(makeStyles);
   useTheme();
   const router = useRouter();
+  const { openPremium } = usePremium();
+
+  useEffect(() => {
+    if (!LOCKS.maxMedicamentos) return;
+    api<unknown[]>('/medications')
+      .then((l) => {
+        if (l.length >= LOCKS.maxMedicamentos) {
+          router.back();
+          openPremium('medicamentos');
+        }
+      })
+      .catch(() => {});
+  }, []);
   const [nome, setNome] = useState('');
   const [dosagem, setDosagem] = useState('');
   const [hora, setHora] = useState('');

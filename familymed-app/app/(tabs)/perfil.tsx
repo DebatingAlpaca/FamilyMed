@@ -1,4 +1,7 @@
 import { useTheme } from '../../src/ThemeContext';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { usePremium } from '../../src/PremiumContext';
+import { LOCKS } from '../../src/premium';
 import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect, useRouter } from 'expo-router';
 import { useCallback, useEffect, useRef, useState } from 'react';
@@ -26,6 +29,7 @@ export default function Familia() {
   const s = useStyles(makeStyles);
   useTheme();
   const router = useRouter();
+  const { openPremium } = usePremium();
   const { session, signOut, patientId, setPatient, patientsVersion } = useSession();
   const [fam, setFam] = useState<Fam[] | null>(null);
   const [profs, setProfs] = useState<Prof[]>([]);
@@ -78,7 +82,14 @@ export default function Familia() {
 
       <View style={s.topo}>
         <Text style={s.titulo}>Minha família</Text>
-        <Pressable style={s.addBtn} onPress={() => router.push('/novo-paciente')}>
+        <Pressable
+          style={s.addBtn}
+          onPress={() =>
+            LOCKS.maxFamiliares > 0 && (fam?.length ?? 0) >= LOCKS.maxFamiliares
+              ? openPremium('familiares')
+              : router.push('/novo-paciente')
+          }
+        >
           <Ionicons name="add" size={16} color="#fff" />
           <Text style={s.addText}>Adicionar</Text>
         </Pressable>
@@ -123,8 +134,15 @@ export default function Familia() {
         <>
           <View style={s.topo}>
             <Text style={s.titulo}>Profissionais de {atual.nome.split(' ')[0]}</Text>
-            <Pressable style={s.addBtn} onPress={() => router.push('/novo-membro')}>
-              <Ionicons name="add" size={16} color="#fff" />
+            <Pressable
+              style={s.addBtn}
+              onPress={() => (LOCKS.profissionais ? openPremium('profissionais') : router.push('/novo-membro'))}
+            >
+              {LOCKS.profissionais ? (
+                <MaterialCommunityIcons name="crown" size={14} color="#FFD54F" />
+              ) : (
+                <Ionicons name="add" size={16} color="#fff" />
+              )}
               <Text style={s.addText}>Adicionar</Text>
             </Pressable>
           </View>

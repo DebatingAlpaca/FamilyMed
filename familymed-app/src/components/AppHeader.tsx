@@ -3,6 +3,8 @@ import { useRouter } from 'expo-router';
 import { Pressable, Text, View, StyleSheet } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTheme } from '../ThemeContext';
+import { usePremium } from '../PremiumContext';
+import { LOCKS } from '../premium';
 import type { Colors } from '../theme';
 import { useColors, useStyles } from '../ThemeContext';
 import PatientSwitcher from './PatientSwitcher';
@@ -13,10 +15,12 @@ export default function AppHeader() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
   const { mode, toggle } = useTheme();
+  const { openPremium } = usePremium();
+  const trocarTema = () => (mode === 'light' && LOCKS.temaEscuro ? openPremium('tema') : toggle());
   return (
     <View style={[s.wrap, { paddingTop: insets.top }]}>
       <View style={s.row}>
-        <Pressable style={s.side} onPress={toggle} hitSlop={10}>
+        <Pressable style={s.side} onPress={trocarTema} hitSlop={10}>
           <Ionicons name={mode === 'dark' ? 'sunny-outline' : 'moon-outline'} size={22} color={colors.primary} />
         </Pressable>
         <Text style={s.logo}>FamilyMed</Text>

@@ -1,4 +1,7 @@
 import { useTheme } from '../src/ThemeContext';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { usePremium } from '../src/PremiumContext';
+import { LOCKS } from '../src/premium';
 import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect } from 'expo-router';
 import { useCallback, useState } from 'react';
@@ -27,6 +30,7 @@ const iso = (br: string) => {
 const br = (i: string) => i.split('-').reverse().join('/');
 
 export default function Historico() {
+  const { openPremium } = usePremium();
   const colors = useColors();
   const s = useStyles(makeStyles);
   useTheme();
@@ -92,8 +96,12 @@ export default function Historico() {
               </View>
             </View>
             {!!erro && <Text style={{ color: colors.danger, marginBottom: 8 }}>{erro}</Text>}
-            <Pressable style={s.export} onPress={exportar}>
-              <Ionicons name="share-outline" size={16} color={colors.primary} />
+            <Pressable style={s.export} onPress={() => (LOCKS.exportarHistorico ? openPremium('exportar') : exportar())}>
+              {LOCKS.exportarHistorico ? (
+                <MaterialCommunityIcons name="crown" size={16} color="#F5B301" />
+              ) : (
+                <Ionicons name="share-outline" size={16} color={colors.primary} />
+              )}
               <Text style={s.exportText}>Exportar</Text>
             </Pressable>
           </View>

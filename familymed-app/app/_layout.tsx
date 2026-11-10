@@ -4,6 +4,9 @@ import { useEffect } from 'react';
 import { SessionProvider, useSession } from '../src/session';
 import { useColors } from '../src/ThemeContext';
 import { ThemeProvider, useTheme } from '../src/ThemeContext';
+import { PremiumProvider, usePremium } from '../src/PremiumContext';
+
+let welcomeShown = false; // uma vez por abertura do app
 
 function Gate() {
   const colors = useColors();
@@ -11,6 +14,14 @@ function Gate() {
   const { mode } = useTheme();
   const segments = useSegments();
   const router = useRouter();
+  const { openPremium } = usePremium();
+
+  useEffect(() => {
+    if (session && !loading && !welcomeShown) {
+      welcomeShown = true;
+      openPremium('welcome');
+    }
+  }, [session, loading]);
 
   useEffect(() => {
     if (loading) return;
@@ -47,7 +58,9 @@ export default function Root() {
   return (
     <ThemeProvider>
       <SessionProvider>
-        <Gate />
+        <PremiumProvider>
+          <Gate />
+        </PremiumProvider>
       </SessionProvider>
     </ThemeProvider>
   );

@@ -1,5 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '../../src/ThemeContext';
+import { usePremium } from '../../src/PremiumContext';
+import { LOCKS } from '../../src/premium';
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
 import { Alert, KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
@@ -14,6 +16,7 @@ export default function Login() {
   const colors = useColors();
   const s = useStyles(makeStyles);
   const { mode: themeMode, toggle: toggleTheme } = useTheme();
+  const { openPremium } = usePremium();
   const router = useRouter();
   const { signIn } = useSession();
   const [email, setEmail] = useState('');
@@ -68,7 +71,7 @@ export default function Login() {
           </Text>
         </View>
       </ScrollView>
-      <Pressable style={{ position: 'absolute', top: 50, right: 20 }} onPress={toggleTheme} hitSlop={10}>
+      <Pressable style={{ position: 'absolute', top: 50, right: 20 }} onPress={() => (themeMode === 'light' && LOCKS.temaEscuro ? openPremium('tema') : toggleTheme())} hitSlop={10}>
         <Ionicons name={themeMode === 'dark' ? 'sunny-outline' : 'moon-outline'} size={24} color={colors.primary} />
       </Pressable>
     </KeyboardAvoidingView>

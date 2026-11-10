@@ -4,6 +4,8 @@ import { useEffect, useState } from 'react';
 import { Modal, Pressable, StyleSheet, Text, View } from 'react-native';
 import { api } from '../api';
 import { useSession } from '../session';
+import { usePremium } from '../PremiumContext';
+import { LOCKS } from '../premium';
 import Avatar from './Avatar';
 import { radius } from '../theme';
 import type { Colors } from '../theme';
@@ -15,6 +17,7 @@ export default function PatientSwitcher() {
   const colors = useColors();
   const s = useStyles(makeStyles);
   const router = useRouter();
+  const { openPremium } = usePremium();
   const { session, patientId, setPatient, patientsVersion } = useSession();
   const [list, setList] = useState<P[]>([]);
   const [open, setOpen] = useState(false);
@@ -60,7 +63,11 @@ export default function PatientSwitcher() {
                 </Pressable>
               );
             })}
-            <Pressable style={s.add} onPress={() => { setOpen(false); router.push('/novo-paciente'); }}>
+            <Pressable style={s.add} onPress={() => {
+              setOpen(false);
+              if (LOCKS.maxFamiliares > 0 && list.length >= LOCKS.maxFamiliares) openPremium('familiares');
+              else router.push('/novo-paciente');
+            }}>
               <Ionicons name="add-circle-outline" size={20} color={colors.primary} />
               <Text style={s.addText}>Adicionar familiar</Text>
             </Pressable>
